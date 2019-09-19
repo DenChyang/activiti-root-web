@@ -92,6 +92,27 @@ public class ProcessDefinitionTest {
         }
     }
 
+    /**
+     * 删除流程定义
+     */
+    @Test
+    public void deleteProcessDefinition() {
+        // 使用部署id，完成删除
+        String deploymentId = "1";
+        /**
+         * 不带级联的删除
+         *  只能删除没有启动的流程，如果流程启动，就会抛出异常
+         */
+        //processEngine.getRepositoryService()
+        //        .deleteDeployment(deploymentId);
+
+        /**
+         * 级联删除
+         *      不管流程是否启动，都能删除
+         */
+        processEngine.getRepositoryService()
+                .deleteDeployment(deploymentId,true);
+    }
 
 
 }
