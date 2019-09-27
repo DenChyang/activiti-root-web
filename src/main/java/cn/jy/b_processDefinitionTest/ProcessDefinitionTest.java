@@ -4,9 +4,15 @@ import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.ProcessDefinition;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.util.FileSystemUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.List;
 import java.util.zip.ZipInputStream;
@@ -80,7 +86,7 @@ public class ProcessDefinitionTest {
 
         if (list != null && list.size() > 0) {
             for (ProcessDefinition pd : list) {
-                System.out.println("流程定义id："+pd.getId());// 流程定义的key+版本+随机生成数
+                System.out.println("流程定义id："+pd.getId());// 流程定义的  key:版本:随机生成数
                 System.out.println("流程定义name："+pd.getName());// 对应的helloworld.bpmn文件中的name属性值
                 System.out.println("流程定义key："+pd.getKey());// 对应helloworld.bpmn文件中的id属性值
                 System.out.println("流程定义版本："+pd.getVersion());// 流程定义的key值相同的情况下，版本升级
@@ -112,6 +118,47 @@ public class ProcessDefinitionTest {
          */
         processEngine.getRepositoryService()
                 .deleteDeployment(deploymentId,true);
+    }
+
+    /**
+     * 查看流程图
+     */
+    @Test
+    public void viewPic() throws IOException {
+        /**
+         * 将生成的图片放到文件夹下
+         */
+        String deplomentId = "5001";
+
+        // 获取图片资源名称
+        List<String> list = processEngine.getRepositoryService()
+                .getDeploymentResourceNames(deplomentId);
+        // 定义流程名称
+        String resourceName = "";
+        if (list != null && list.size() > 0) {
+            for (String s : list) {
+                if (s.indexOf("png") >= 0) {
+                    resourceName = s;
+                }
+            }
+        }
+        // 获取图片流
+        InputStream in = processEngine.getRepositoryService()
+                .getResourceAsStream(deplomentId, resourceName);
+
+        // 输出图片,将图片生成到d盘目录下
+        File file = new File("D:/" + resourceName);
+
+        // 将图片下入到d盘下
+        FileUtils.copyInputStreamToFile(in, file);
+    }
+
+    /**
+     *
+     */
+    @Test
+    public void delete() {
+
     }
 
 
