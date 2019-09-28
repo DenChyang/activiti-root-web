@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.zip.ZipInputStream;
 
@@ -154,12 +156,79 @@ public class ProcessDefinitionTest {
     }
 
     /**
-     *
+     * 附加功能：查询最新版本的流程定义
      */
     @Test
-    public void delete() {
+    public void findLastVersionprocessDefinition() {
+        List<ProcessDefinition> list = processEngine.getRepositoryService()//
+                .createProcessDefinitionQuery()//
+                .orderByProcessDefinitionVersion().asc()// 使用流程定义的版本升序排列
+                .list();
 
+        LinkedHashMap<String, ProcessDefinition> map = new LinkedHashMap<>();
+        if (list != null && list.size() > 0) {
+            for (ProcessDefinition pd : list) {
+                map.put(pd.getKey(), pd);
+            }
+        }
+        ArrayList<ProcessDefinition> pdList = new ArrayList<>(map.values());
+        if (pdList != null && pdList.size() > 0) {
+            for (ProcessDefinition pd : pdList) {
+                System.out.println("流程定义id："+pd.getId());// 流程定义的  key:版本:随机生成数
+                System.out.println("流程定义name："+pd.getName());// 对应的helloworld.bpmn文件中的name属性值
+                System.out.println("流程定义key："+pd.getKey());// 对应helloworld.bpmn文件中的id属性值
+                System.out.println("流程定义版本："+pd.getVersion());// 流程定义的key值相同的情况下，版本升级
+                System.out.println("资源名称bpmn文件："+pd.getResourceName());
+                System.out.println("资源名称png文件："+pd.getDiagramResourceName());
+                System.out.println("部署对象的id："+pd.getDeploymentId());
+                System.out.println("############################################");
+            }
+        }
     }
+
+    /**
+     * 附加功能：删除流程定义(删除key相同的所有不同版本的流程定义)
+     */
+    @Test
+    public void deleteProcessDefinitionByKey() {
+        // 流程定义的key
+        String processDefinitionKey = "helloworld";
+        // 先使用流程定义的key查询流程定义，查询出所有的版本
+        List<ProcessDefinition> list = processEngine.getRepositoryService()//
+                .createProcessDefinitionQuery()//
+                .processDefinitionKey(processDefinitionKey)//使用流程定义的key查询
+                .list();
+        // 遍历
+        if (list != null && list.size() > 0) {
+            for (ProcessDefinition pd : list) {
+                // 获取部署id
+                String deploymentId = pd.getDeploymentId();
+                processEngine.getRepositoryService()
+                        .deleteDeployment(deploymentId, true);
+            }
+        }
+    }
+
+    /**
+     * 总结：
+     * ****************************************
+     * deployment 部署对象
+     * 一次部署的多个文件的信息，对于不需要的流程可以删除和修改
+     * 对应的表：
+     * act_re_deployment:部署对象表
+     * act_re_prodef：流程定义表
+     * act_re_bytearray：资源文件表
+     * act_re_property：主键生成策略表
+     * ****************************************
+     * processDefinition 流程定义
+     * 解析bpmn 后得到的流程𨈖一规则的信息，工作流系统就是按照流程定义的规则执行的
+     * 相关的表
+     *   act_re_deployment:部署对象表
+     *   act_re_prodef：流程定义表
+     *   act_re_bytearray：资源文件表
+     *   act_re_property：主键生成策略表
+     */
+
 
 
 }
