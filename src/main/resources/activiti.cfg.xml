@@ -15,7 +15,7 @@
         <bean id="processEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration">
             <!--数据库的连接配置-->
             <property name="jdbcDriver" value="com.mysql.jdbc.Driver"></property>
-            <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/activiti5?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false&amp;serverTimezone=UTC"></property>
+            <property name="jdbcUrl" value="jdbc:mysql://47.99.110.44:3307/activiti6?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false&amp;serverTimezone=UTC"></property>
             <!--<property name="jdbcUrl" value="jdbc:oracle:thin:@(description=(address_list= (address=(host=localhost) (protocol=tcp)(port=1521))(address=(host=localhost)(protocol=tcp) (port=1521)) (load_balance=yes)(failover=yes))(connect_data=(service_name= orcl.genomics.cn)))"></property>-->
             <property name="jdbcUsername" value="root"></property>
             <property name="jdbcPassword" value="root"></property>

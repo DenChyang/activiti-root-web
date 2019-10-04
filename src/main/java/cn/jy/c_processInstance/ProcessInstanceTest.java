@@ -2,6 +2,8 @@ package cn.jy.c_processInstance;
 
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngines;
+import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -101,5 +103,82 @@ public class ProcessInstanceTest {
                 .complete(taskId);
         System.out.println("完成任务：任务id："+ taskId);
     }
+
+    /**
+     * 查询流程状态,判断流程正在执行,还是结束
+     */
+    @Test
+    public void queryProcessState() {
+        String processInstanceId = "5001";
+        // 使用正在执行的流程实例表进行查询
+        ProcessInstance pi = processEngine.getRuntimeService()// 正在执行的流程实例和执行对象
+                .createProcessInstanceQuery()// 创建流程实例查询
+                .processDefinitionId(processInstanceId)// 使用流程实例id查询
+                .singleResult();
+        if (pi == null) {
+            // 流程实例结束了,实例表中就删除执行对象表中的数据
+            System.out.println("流程已经结束");
+        }else {
+
+            System.out.println("流程灭有结束");
+        }
+    }
+
+    /**
+     * 查询历史任务
+     */
+    @Test
+    public void queryHisTask() {
+        String taskAssignee = "张三";
+        List<HistoricTaskInstance> list = processEngine.getHistoryService()// 与历史表相关的service
+                .createHistoricTaskInstanceQuery()// 创建历史流程实例查询
+                .taskAssignee(taskAssignee)// 指定历史任务的班里人
+                .list();
+        if (list != null && list.size() > 0) {
+            for (HistoricTaskInstance hisTaskInstance : list) {
+                System.out.println(hisTaskInstance.getId()+"  "+hisTaskInstance.getName()+"  "
+                        +hisTaskInstance.getProcessInstanceId()+"  "
+                        +hisTaskInstance.getStartTime()+" "+hisTaskInstance.getEndTime());
+                System.out.println("***************************");
+
+            }
+        }
+    }
+
+    /**
+     * 查询历史流程实例
+     */
+    @Test
+    public void queryHisProcessInstance() {
+        String processInstanceId = "2501";
+        HistoricProcessInstance historicProcessInstance = processEngine.getHistoryService()// 使用历史流程实例查询
+                .createHistoricProcessInstanceQuery()// 创建历史流程实例查询
+                .processInstanceId(processInstanceId)// 使用流程实例id查询
+                .singleResult();
+
+        System.out.println(historicProcessInstance.getId()+" "+historicProcessInstance.getName()+" "
+        +historicProcessInstance.getStartTime()+"  "
+        +historicProcessInstance.getBusinessKey());
+    }
+
+    /**
+     * 执行对象
+     *  按流程定义的规则执行一次的过程
+     *      表:
+     *         act_ru_execution:正在执行的信息
+     *         act_hi_procinst:已经执行完的历史流程实例信息
+     *         act_hi_actinst:存放历史所有完成的活动(所有活动节点的历史表)
+     * 流程实例
+     *  指流程从开始到结束的最大执行分支,一个执行的流程,流程实例只有一个
+     *      注意:
+     *          如果是单实例流程,执行对象id就是流程实例id
+     *          如果一个流程有分支和聚合,那么执行对象id和流程实例id就不相同
+     *          一个流程中,流程实例只有一个,执行对象可以存在多个
+     *  task任务
+     *      执行到某任务环节时生成的任务信息
+     *        表:
+     *          act_ru_task:正在执行的任务信息
+     *          act_hi_taskinst:已经执行完的历史任务信息
+     */
 
 }
